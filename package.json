@@ -1,0 +1,24 @@
+{
+  "name": "blackbox-protocol",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Personal safety recording app — stream video/audio to secure cloud storage with one tap",
+  "author": "Tomas",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  }
+}
