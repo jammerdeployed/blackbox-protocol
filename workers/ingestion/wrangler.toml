@@ -1,0 +1,12 @@
+name = "witness-ingestion"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[[r2_buckets]]
+binding = "WITNESS_BUCKET"
+bucket_name = "witness-chunks"
+
+[[d1_databases]]
+binding = "WITNESS_DB"
+database_name = "witness-meta"
+database_id = "xxxx-xxxx-xxxx-xxxx"
