@@ -1,0 +1,11 @@
+{
+  "name": "@blackbox-protocol/worker-alert",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "private": true,
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.91.0"
+  }
+}
