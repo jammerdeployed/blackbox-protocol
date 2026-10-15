@@ -2,21 +2,33 @@
 // Blackbox Protocol — Shared Types
 // ─────────────────────────────────────────────────
 
-/** Status of a recording session */
-export type SessionStatus = 'recording' | 'finalizing' | 'complete' | 'failed';
+/** Status of a recording session (Finite State Machine) */
+export type SessionStatus = 'ACTIVE' | 'INTERRUPTED' | 'COMPLETED' | 'CORRUPTED';
+
+/** Alert routing preferences */
+export interface AlertPreferences {
+  telegram: boolean;
+  discord: boolean;
+  email: boolean;
+  emailAddress?: string;
+}
 
 /** A recording session */
 export interface Session {
   id: string;
   status: SessionStatus;
-  startedAt: string;
-  endedAt: string | null;
-  chunkCount: number;
-  totalBytes: number;
-  latitude: number | null;
-  longitude: number | null;
   mimeType: string;
-  metadata: Record<string, unknown>;
+  createdAt: number;
+  lastHeartbeatAt: number;
+  finalizedAt: number | null;
+  contiguousSeq: number;
+  totalChunks: number;
+  totalBytes: number;
+  lastLat: number | null;
+  lastLng: number | null;
+  lastAccuracy: number | null;
+  batteryLevel: number | null;
+  metadata?: AlertPreferences | Record<string, unknown> | null;
 }
 
 /** A single recorded chunk */
@@ -25,8 +37,13 @@ export interface Chunk {
   sessionId: string;
   sequenceNum: number;
   r2Key: string;
-  sizeBytes: number;
-  uploadedAt: string;
+  byteLength: number;
+  byteOffset: number;
+  sha256: string;
+  recordedAt: number;
+  uploadedAt: number;
+  lat: number | null;
+  lng: number | null;
 }
 
 /** Geolocation coordinates */
@@ -38,13 +55,14 @@ export interface GeoPosition {
 
 /** Alert payload sent between workers */
 export interface AlertPayload {
-  type: 'session_started' | 'session_completed';
+  type: 'session_started' | 'session_completed' | 'session_interrupted';
   sessionId: string;
   latitude?: number | null;
   longitude?: number | null;
-  timestamp: string;
+  timestamp: string | number;
   chunkCount?: number;
   totalBytes?: number;
+  alerts?: AlertPreferences;
 }
 
 /** Client-side recorder configuration */
@@ -57,23 +75,27 @@ export interface RecorderConfig {
   audioBitsPerSecond: number;
 }
 
-/** Upload queue item stored in IndexedDB */
+/**
+ * Upload queue item stored in IndexedDB.
+ * Uses ArrayBuffer instead of Blob to prevent iOS Safari detachment errors.
+ */
 export interface QueuedChunk {
   id: string;
   sessionId: string;
-  sequence: number;
-  blob: Blob;
-  timestamp: number;
-  retries: number;
-  latitude?: number;
-  longitude?: number;
+  sequenceNum: number;
+  data: ArrayBuffer;
+  sha256: string;
+  recordedAt: number;
+  lat: number | null;
+  lng: number | null;
+  retryCount: number;
 }
 
 /** App configuration stored in localStorage */
 export interface WitnessConfig {
   apiUrl: string;
   authToken: string;
-  telegramChatId?: string;
+  alerts: AlertPreferences;
 }
 
 /** Upload statistics */
