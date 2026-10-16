@@ -44,8 +44,8 @@ export const chunks = sqliteTable(
     lng: real('lng'),
   },
   (table) => ({
+    // Unique index v SQLite již slouží jako primární vyhledávací B-Tree pro (session_id, sequence_num)
     sessionSeqUnique: uniqueIndex('unq_session_seq').on(table.sessionId, table.sequenceNum),
-    sessionSeqIdx: index('idx_chunks_session').on(table.sessionId, table.sequenceNum),
   })
 );
 
