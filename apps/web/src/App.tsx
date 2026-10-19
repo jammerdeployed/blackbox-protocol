@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Layout } from './components/Layout';
-import { SettingsPanel } from './components/SettingsPanel';
+import { SettingsPanel, type SettingsFormData } from './components/SettingsPanel';
 import { RecordButton } from './components/RecordButton';
 import { StatusBar } from './components/StatusBar';
 import { SessionList, type DisplaySession } from './components/SessionList';
@@ -14,7 +14,10 @@ export default function App() {
   const [apiUrl, setApiUrl] = useState(localStorage.getItem('apiUrl') || '');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [chatId, setChatId] = useState(localStorage.getItem('chatId') || '');
+  const [emailAddress, setEmailAddress] = useState(localStorage.getItem('emailAddress') || '');
   const [discordAlert, setDiscordAlert] = useState(localStorage.getItem('discordAlert') !== 'false');
+  const [telegramAlert, setTelegramAlert] = useState(localStorage.getItem('telegramAlert') !== 'false');
+  const [emailAlert, setEmailAlert] = useState(localStorage.getItem('emailAlert') === 'true');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [sessions, setSessions] = useState<DisplaySession[]>([]);
@@ -67,10 +70,12 @@ export default function App() {
   const alertPreferences: AlertPreferences = useMemo(
     () => ({
       discord: discordAlert,
-      telegram: Boolean(chatId.trim()),
-      email: false,
+      telegram: telegramAlert,
+      email: emailAlert,
+      chatId: chatId.trim() || undefined,
+      emailAddress: emailAddress.trim() || undefined,
     }),
-    [discordAlert, chatId]
+    [discordAlert, telegramAlert, emailAlert, chatId, emailAddress]
   );
 
   const { isRecording, duration, chunkCount, startRecording, stopRecording, error } = useRecorder(
@@ -81,15 +86,21 @@ export default function App() {
   );
   const { uploadStats } = useUploadStatus();
 
-  const handleSaveSettings = (u: string, t: string, c: string, d: boolean) => {
-    localStorage.setItem('apiUrl', u);
-    localStorage.setItem('token', t);
-    localStorage.setItem('chatId', c);
-    localStorage.setItem('discordAlert', String(d));
-    setApiUrl(u);
-    setToken(t);
-    setChatId(c);
-    setDiscordAlert(d);
+  const handleSaveSettings = (data: SettingsFormData) => {
+    localStorage.setItem('apiUrl', data.url);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('chatId', data.chatId);
+    localStorage.setItem('emailAddress', data.emailAddress);
+    localStorage.setItem('discordAlert', String(data.discordEnabled));
+    localStorage.setItem('telegramAlert', String(data.telegramEnabled));
+    localStorage.setItem('emailAlert', String(data.emailEnabled));
+    setApiUrl(data.url);
+    setToken(data.token);
+    setChatId(data.chatId);
+    setEmailAddress(data.emailAddress);
+    setDiscordAlert(data.discordEnabled);
+    setTelegramAlert(data.telegramEnabled);
+    setEmailAlert(data.emailEnabled);
     setIsSettingsOpen(false);
   };
 
@@ -104,7 +115,10 @@ export default function App() {
             initUrl={apiUrl}
             initToken={token}
             initChatId={chatId}
+            initEmailAddress={emailAddress}
             initDiscordEnabled={discordAlert}
+            initTelegramEnabled={telegramAlert}
+            initEmailEnabled={emailAlert}
           />
         </div>
       ) : (
@@ -152,7 +166,10 @@ export default function App() {
                   initUrl={apiUrl}
                   initToken={token}
                   initChatId={chatId}
+                  initEmailAddress={emailAddress}
                   initDiscordEnabled={discordAlert}
+                  initTelegramEnabled={telegramAlert}
+                  initEmailEnabled={emailAlert}
                   onClose={() => setIsSettingsOpen(false)}
                 />
               </div>,

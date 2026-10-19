@@ -11,6 +11,7 @@ export interface AlertPreferences {
   discord: boolean;
   email: boolean;
   emailAddress?: string;
+  chatId?: string;
 }
 
 /** A recording session */
