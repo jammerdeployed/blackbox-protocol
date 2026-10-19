@@ -1,7 +1,7 @@
 import React from 'react';
 import { Play, RotateCw, Trash2, CheckCircle2, AlertTriangle, Radio } from 'lucide-react';
 import { getPlaybackUrl } from '../lib/api';
-import { cs } from '../lib/locales/cs';
+import { useTranslation } from '../lib/locales';
 
 export interface DisplaySession {
   id: string;
@@ -20,26 +20,29 @@ interface Props {
 }
 
 export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onClear, isLoading }) => {
+  const { t, locale } = useTranslation();
   if (sessions.length === 0 && !onRefresh) return null;
+
+  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-US';
 
   const renderStatusBadge = (status?: string) => {
     switch (status) {
       case 'COMPLETED':
         return (
           <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
-            <CheckCircle2 className="w-2.5 h-2.5" /> {cs.statusCompleted}
+            <CheckCircle2 className="w-2.5 h-2.5" /> {t.statusCompleted}
           </span>
         );
       case 'ACTIVE':
         return (
           <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 animate-pulse">
-            <Radio className="w-2.5 h-2.5" /> {cs.statusActive}
+            <Radio className="w-2.5 h-2.5" /> {t.statusActive}
           </span>
         );
       case 'INTERRUPTED':
         return (
           <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800">
-            <AlertTriangle className="w-2.5 h-2.5" /> {cs.statusInterrupted}
+            <AlertTriangle className="w-2.5 h-2.5" /> {t.statusInterrupted}
           </span>
         );
       default:
@@ -50,13 +53,13 @@ export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onCl
   return (
     <div className="w-full max-w-md mt-6 p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-slate-200">{cs.recentRecordings}</h2>
+        <h2 className="text-lg font-semibold text-slate-200">{t.recentRecordings}</h2>
         <div className="flex items-center gap-2">
           {onRefresh && (
             <button
               onClick={onRefresh}
               disabled={isLoading}
-              title={cs.refreshSessions}
+              title={t.refreshSessions}
               className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
             >
               <RotateCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -65,7 +68,7 @@ export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onCl
           {onClear && sessions.length > 0 && (
             <button
               onClick={onClear}
-              title={cs.clearHistory}
+              title={t.clearHistory}
               className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4" />
@@ -75,7 +78,7 @@ export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onCl
       </div>
 
       {sessions.length === 0 ? (
-        <p className="text-xs text-slate-500 text-center py-4">{cs.noRecordings}</p>
+        <p className="text-xs text-slate-500 text-center py-4">{t.noRecordings}</p>
       ) : (
         <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
           {sessions.map((s) => (
@@ -86,7 +89,7 @@ export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onCl
               <div className="flex flex-col gap-1 min-w-0 pr-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-slate-200 truncate">
-                    {new Date(s.date).toLocaleTimeString()} · {new Date(s.date).toLocaleDateString()}
+                    {new Date(s.date).toLocaleTimeString(dateLocale)} · {new Date(s.date).toLocaleDateString(dateLocale)}
                   </span>
                   {renderStatusBadge(s.status)}
                 </div>
@@ -94,13 +97,13 @@ export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onCl
                   <span>ID: {s.id.substring(0, 8)}...</span>
                   <span>•</span>
                   <span>
-                    {s.chunkCount} {cs.fragments}
+                    {s.chunkCount} {t.fragments}
                   </span>
                   {typeof s.duration === 'number' && s.duration > 0 && (
                     <>
                       <span>•</span>
                       <span>
-                        {s.duration}s {cs.durationSec}
+                        {s.duration}s {t.durationSec}
                       </span>
                     </>
                   )}
@@ -110,7 +113,7 @@ export const SessionList: React.FC<Props> = ({ sessions, apiUrl, onRefresh, onCl
                 href={getPlaybackUrl(apiUrl, s.id)}
                 target="_blank"
                 rel="noreferrer"
-                title={cs.play}
+                title={t.play}
                 className="flex-shrink-0 p-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-full transition-all hover:scale-105"
               >
                 <Play className="w-4 h-4 fill-emerald-400" />

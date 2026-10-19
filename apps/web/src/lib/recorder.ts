@@ -1,6 +1,8 @@
 import { MIME_TYPE_PREFERENCE, DEFAULT_RECORDER_CONFIG } from '@blackbox-protocol/shared';
 import type { RecorderConfig } from '@blackbox-protocol/shared';
-import { cs } from './locales/cs';
+import { cs, en, getStoredLocale } from './locales';
+
+const getTexts = () => (getStoredLocale() === 'cs' ? cs : en);
 
 export class WitnessRecorder {
   private mediaRecorder: MediaRecorder | null = null;
@@ -21,7 +23,8 @@ export class WitnessRecorder {
   }
 
   async start(): Promise<string> {
-    if (this._isRecording) throw new Error(cs.alreadyRecording);
+    const t = getTexts();
+    if (this._isRecording) throw new Error(t.alreadyRecording);
 
     this.sessionId = crypto.randomUUID();
     this.chunkSequence = 0;
@@ -48,7 +51,7 @@ export class WitnessRecorder {
           audio: true,
         });
       } catch (fallbackErr) {
-        throw new Error(cs.cameraPermissionDenied);
+        throw new Error(t.cameraPermissionDenied);
       }
     }
 
