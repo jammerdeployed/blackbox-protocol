@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Settings, Save, Bell, X, Send, Mail, MessageSquare } from 'lucide-react';
+import { Save, Bell, X, Send, Mail, MessageSquare } from 'lucide-react';
+import { WitnessLogo } from './WitnessLogo';
 import { useTranslation } from '../lib/locales';
 
 export interface SettingsFormData {
@@ -61,7 +62,7 @@ export const SettingsPanel: React.FC<Props> = ({
     <div className="w-full max-w-md p-6 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl">
       <div className="flex items-center justify-between mb-5 text-slate-200">
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-red-500" />
+          <WitnessLogo className="w-5 h-5" />
           <h2 className="text-base font-bold text-slate-100">{t.systemConfig}</h2>
         </div>
         {onClose && (

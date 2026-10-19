@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Shield, Settings, Globe, Lock, X, Radio } from 'lucide-react';
+import { Settings, Globe, Lock, X, Radio } from 'lucide-react';
+import { WitnessLogo } from './WitnessLogo';
 import { useTranslation } from '../lib/locales';
 
 export const Layout: React.FC<{ children: React.ReactNode; onOpenSettings?: () => void }> = ({
@@ -14,7 +15,7 @@ export const Layout: React.FC<{ children: React.ReactNode; onOpenSettings?: () =
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <header className="flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800">
         <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5 text-red-500" />
+          <WitnessLogo className="w-6 h-6" />
           <span className="text-base font-bold tracking-wider text-slate-100">Witness</span>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-emerald-400 font-medium">
             <Radio className="w-3 h-3 text-emerald-400" />
@@ -69,7 +70,7 @@ export const Layout: React.FC<{ children: React.ReactNode; onOpenSettings?: () =
             <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-100 font-semibold text-base">
-                  <Shield className="w-5 h-5 text-red-500" />
+                  <WitnessLogo className="w-5 h-5" />
                   <h3>{t.privacyTitle}</h3>
                 </div>
                 <button

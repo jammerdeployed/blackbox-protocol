@@ -1,4 +1,4 @@
-const CACHE_NAME = 'witness-cache-v4';
+const CACHE_NAME = 'witness-cache-v5';
 
 // Immediately take control of all clients upon install
 self.addEventListener('install', (event) => {
