@@ -56,7 +56,8 @@ export default {
 
 async function sendTelegramAlert(payload: AlertPayload, env: Env) {
   const { type, sessionId, latitude, longitude, timestamp } = payload;
-  const playbackLink = `${env.PLAYBACK_BASE_URL}/play/${sessionId}`;
+  const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev').replace(/\/+$/, '');
+  const playbackLink = `${base}/play/${sessionId}`;
   
   if (type === 'session_started') {
     if (latitude && longitude) {
@@ -99,7 +100,8 @@ async function sendTelegramAlert(payload: AlertPayload, env: Env) {
 
 async function sendDiscordAlert(payload: AlertPayload, env: Env) {
   const { type, sessionId, latitude, longitude, timestamp } = payload;
-  const playbackLink = `${env.PLAYBACK_BASE_URL}/play/${sessionId}`;
+  const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev').replace(/\/+$/, '');
+  const playbackLink = `${base}/play/${sessionId}`;
 
   const isStart = type === 'session_started';
   const color = isStart ? 0xff0000 : 0x00ff00;

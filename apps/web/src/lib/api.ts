@@ -7,5 +7,6 @@ export async function finalizeSession(apiUrl: string, token: string, sessionId: 
 }
 
 export function getPlaybackUrl(apiUrl: string, sessionId: string): string {
-  return `${apiUrl}/playback/${sessionId}`;
+  const base = apiUrl.replace(/\/+$/, '').replace('witness-ingestion', 'witness-playback');
+  return `${base}/play/${sessionId}`;
 }

@@ -4,6 +4,7 @@ export interface Env {
   AUTH_TOKEN: string;
   ALERT_SERVICE?: Fetcher;
   ALERT_SECRET?: string;
+  ALERT_WORKER_URL?: string;
 }
 
 const MAX_CHUNK_BYTES = 12 * 1024 * 1024; // 12 MB limit for 1s chunk (memory protection)
@@ -94,6 +95,40 @@ async function computeSha256Hex(buffer: ArrayBuffer): Promise<string> {
   return Array.from(new Uint8Array(digest))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+function dispatchAlert(env: Env, ctx: ExecutionContext, payload: any): void {
+  if (!env.ALERT_SECRET) return;
+  if (!env.ALERT_SERVICE && !env.ALERT_WORKER_URL) return;
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${env.ALERT_SECRET}`,
+  };
+  const body = JSON.stringify(payload);
+
+  ctx.waitUntil(
+    (async () => {
+      try {
+        if (env.ALERT_SERVICE) {
+          await env.ALERT_SERVICE.fetch(new Request('http://witness-alert/alert', {
+            method: 'POST',
+            headers,
+            body,
+          }));
+        } else if (env.ALERT_WORKER_URL) {
+          const endpoint = env.ALERT_WORKER_URL.replace(/\/+$/, '') + '/alert';
+          await fetch(endpoint, {
+            method: 'POST',
+            headers,
+            body,
+          });
+        }
+      } catch (err: any) {
+        console.error('Alert worker dispatch failed:', err);
+      }
+    })()
+  );
 }
 
 /**
@@ -232,7 +267,7 @@ async function handleUpload(
   const wasInserted = (batchResults[1]?.meta?.changes ?? 0) > 0;
 
   // STEP 3: Dispatch alert on sequence 0 if newly inserted
-  if (sequence === 0 && wasInserted && env.ALERT_SERVICE && env.ALERT_SECRET) {
+  if (sequence === 0 && wasInserted && (env.ALERT_SERVICE || env.ALERT_WORKER_URL) && env.ALERT_SECRET) {
     let alerts = undefined;
     if (alertsStr) {
       try {
@@ -242,23 +277,14 @@ async function handleUpload(
       }
     }
 
-    ctx.waitUntil(
-      env.ALERT_SERVICE.fetch(new Request('http://alert-service/alert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${env.ALERT_SECRET}`,
-        },
-        body: JSON.stringify({
-          type: 'session_started',
-          sessionId,
-          latitude: lat,
-          longitude: lng,
-          timestamp: new Date(now).toISOString(),
-          alerts,
-        }),
-      })).catch((err: any) => console.error('Alert worker trigger failed:', err))
-    );
+    dispatchAlert(env, ctx, {
+      type: 'session_started',
+      sessionId,
+      latitude: lat,
+      longitude: lng,
+      timestamp: new Date(now).toISOString(),
+      alerts,
+    });
   }
 
   return jsonResponse({
@@ -386,7 +412,7 @@ async function handleFinalize(
   await env.WITNESS_DB.batch([reconcileOffsetsStmt, updateSessionStmt]);
 
   // 3. Dispatch alert with complete integrity metadata
-  if (env.ALERT_SERVICE && env.ALERT_SECRET) {
+  if ((env.ALERT_SERVICE || env.ALERT_WORKER_URL) && env.ALERT_SECRET) {
     let alerts = undefined;
     try {
       const session = await env.WITNESS_DB.prepare(
@@ -400,25 +426,16 @@ async function handleFinalize(
       console.warn('Failed to parse metadata for finalize alert:', e);
     }
 
-    ctx.waitUntil(
-      env.ALERT_SERVICE.fetch(new Request('http://alert-service/alert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${env.ALERT_SECRET}`,
-        },
-        body: JSON.stringify({
-          type: 'session_completed',
-          sessionId,
-          status: finalStatus,
-          totalChunks: stats.count,
-          totalBytes: stats.total_bytes,
-          isContiguous,
-          timestamp: new Date(now).toISOString(),
-          alerts,
-        }),
-      })).catch((err: any) => console.error('Alert worker finalize trigger failed:', err))
-    );
+    dispatchAlert(env, ctx, {
+      type: 'session_completed',
+      sessionId,
+      status: finalStatus,
+      totalChunks: stats.count,
+      totalBytes: stats.total_bytes,
+      isContiguous,
+      timestamp: new Date(now).toISOString(),
+      alerts,
+    });
   }
 
   return jsonResponse({

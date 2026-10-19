@@ -18,8 +18,8 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "migrate:local": "wrangler d1 execute witness-meta --local --file=../../workers/schema.sql",
-    "migrate:remote": "wrangler d1 execute witness-meta --remote --file=../../workers/schema.sql",
+    "migrate:local": "npx wrangler d1 execute witness-meta --local --file=../../workers/schema.sql",
+    "migrate:remote": "npx wrangler d1 execute witness-meta --remote --file=../../workers/schema.sql",
     "clean": "rm -rf dist"
   },
   "dependencies": {

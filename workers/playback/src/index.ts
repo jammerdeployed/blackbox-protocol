@@ -38,19 +38,19 @@ export default {
 
     try {
       // 1. Session Telemetry & Metadata
-      const infoMatch = url.pathname.match(/^\/play\/([^/]+)\/info$/);
+      const infoMatch = url.pathname.match(/^\/(?:play|playback)\/([^/]+)\/info$/);
       if (infoMatch) {
         return await handleInfo(request, env, infoMatch[1]);
       }
 
       // 2. MSE Manifest for real-time live playback and player inspection
-      const manifestMatch = url.pathname.match(/^\/play\/([^/]+)\/manifest$/);
+      const manifestMatch = url.pathname.match(/^\/(?:play|playback)\/([^/]+)\/manifest$/);
       if (manifestMatch) {
         return await handleManifest(request, env, manifestMatch[1]);
       }
 
       // 3. Direct Zero-RAM Byte-Range Streamer
-      const playMatch = url.pathname.match(/^\/play\/([^/]+)$/);
+      const playMatch = url.pathname.match(/^\/(?:play|playback)\/([^/]+)$/);
       if (playMatch) {
         return await handlePlayStream(request, env, playMatch[1]);
       }

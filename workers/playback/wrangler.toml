@@ -9,4 +9,4 @@ bucket_name = "witness-chunks"
 [[d1_databases]]
 binding = "WITNESS_DB"
 database_name = "witness-meta"
-database_id = "xxxx-xxxx-xxxx-xxxx"
+database_id = "18cd0fd2-458f-41f7-9bda-37616eed6644"
