@@ -2,7 +2,7 @@
 
 > **A tamper-evident personal black box that streams video, audio, and telemetry to the cloud in real time. Designed to preserve evidence even if the recording device is seized or destroyed.**
 
-[![CI](https://github.com/chytiltomik/blackbox-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/chytiltomik/blackbox-protocol/actions/workflows/ci.yml)
+[![CI](https://github.com/jammerdeployed/blackbox-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/jammerdeployed/blackbox-protocol/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers%20%7C%20R2%20%7C%20D1-orange)](https://workers.cloudflare.com/)
@@ -125,7 +125,7 @@ blackbox-protocol/
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/blackbox-protocol.git
+git clone https://github.com/jammerdeployed/blackbox-protocol.git
 cd blackbox-protocol
 
 # Install dependencies across all workspace packages
@@ -141,8 +141,19 @@ pnpm test
 pnpm --filter @blackbox-protocol/web build
 ```
 
-### Database Migration
+### Cloudflare Infrastructure Setup
 
+1. **Create R2 Storage & D1 Database:**
+```bash
+# Create binary video storage bucket
+npx wrangler r2 bucket create witness-chunks
+
+# Create relational metadata database
+npx wrangler d1 create witness-meta
+# (Copy the generated database_id into workers/ingestion/wrangler.toml & workers/playback/wrangler.toml)
+```
+
+2. **Apply Database Migration:**
 ```bash
 # Apply schema to local D1 instance
 pnpm --filter @blackbox-protocol/db run migrate:local
@@ -150,6 +161,58 @@ pnpm --filter @blackbox-protocol/db run migrate:local
 # Apply schema to remote Cloudflare D1 database
 pnpm --filter @blackbox-protocol/db run migrate:remote
 ```
+
+3. **Configure Worker Secrets:**
+```bash
+# Ingestion Worker auth token (used by mobile client)
+npx wrangler secret put AUTH_TOKEN --cwd workers/ingestion
+
+# Alert Worker secrets (Discord webhook, Telegram, service secret)
+npx wrangler secret put ALERT_SECRET --cwd workers/alert
+npx wrangler secret put DISCORD_WEBHOOK_URL --cwd workers/alert
+npx wrangler secret put PLAYBACK_BASE_URL --cwd workers/alert
+```
+
+4. **Deploy Edge Workers:**
+```bash
+npx wrangler deploy --cwd workers/ingestion
+npx wrangler deploy --cwd workers/playback
+npx wrangler deploy --cwd workers/alert
+```
+
+---
+
+### 🔔 Emergency Dispatch Channels Setup
+
+#### Option A: Discord Webhook (Fastest & Recommended)
+1. Open your Discord server and navigate to your private/emergency channel (e.g. `#safety-alerts`).
+2. Go to **Channel Settings** (gear icon) ➔ **Integrations** ➔ **Webhooks** ➔ **New Webhook**.
+3. Name it `Blackbox Witness` and click **Copy Webhook URL**.
+4. Store the webhook in the Alert Worker:
+   ```bash
+   npx wrangler secret put DISCORD_WEBHOOK_URL --cwd workers/alert
+   ```
+
+#### Option B: Telegram Bot
+1. In Telegram, search for [@BotFather](https://t.me/BotFather) and send `/newbot`.
+2. Follow prompts to name your bot; copy the generated HTTP API token.
+3. Save the token into the Alert Worker:
+   ```bash
+   npx wrangler secret put TELEGRAM_BOT_TOKEN --cwd workers/alert
+   ```
+4. Start a chat with your new bot (press **Start**).
+5. Obtain your numeric Chat ID by forwarding a message to [@userinfobot](https://t.me/userinfobot) (or query `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates`).
+6. Store your chat ID:
+   ```bash
+   npx wrangler secret put TELEGRAM_CHAT_ID --cwd workers/alert
+   ```
+
+#### Connecting Ingestion ➔ Alert Worker (Service Binding)
+In Cloudflare Dashboard, open `witness-ingestion` ➔ **Settings** ➔ **Variables and Secrets** ➔ **Service Bindings**:
+- **Variable name:** `ALERT_SERVICE`
+- **Service:** `witness-alert`
+- **Environment:** `production`
+*(Ensure `ALERT_SECRET` is set to the same shared string in both workers to authenticate inter-worker dispatch).*
 
 ---
 

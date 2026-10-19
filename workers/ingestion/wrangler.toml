@@ -10,3 +10,12 @@ bucket_name = "witness-chunks"
 binding = "WITNESS_DB"
 database_name = "witness-meta"
 database_id = "xxxx-xxxx-xxxx-xxxx"
+
+# Secrets to configure via `npx wrangler secret put <KEY>`:
+# - AUTH_TOKEN   (Bearer token protecting upload and finalize endpoints)
+# - ALERT_SECRET (Shared secret matching ALERT_SECRET in alert worker)
+
+# Service binding for zero-latency worker-to-worker dispatch:
+# [[services]]
+# binding = "ALERT_SERVICE"
+# service = "witness-alert"

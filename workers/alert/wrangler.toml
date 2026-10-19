@@ -1,3 +1,10 @@
 name = "witness-alert"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
+
+# Secrets to configure via `npx wrangler secret put <KEY>`:
+# - DISCORD_WEBHOOK_URL (Discord webhook URL)
+# - ALERT_SECRET        (Shared secret matching ALERT_SECRET in ingestion worker)
+# - PLAYBACK_BASE_URL   (URL of playback worker, e.g. https://witness-playback.<subdomain>.workers.dev)
+# - TELEGRAM_BOT_TOKEN  (Optional: Telegram bot token)
+# - TELEGRAM_CHAT_ID    (Optional: Telegram chat ID)
