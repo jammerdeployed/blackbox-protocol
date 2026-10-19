@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Shield, Settings, Globe, Lock, X } from 'lucide-react';
+import { Shield, Settings, Globe, Lock, X, Radio } from 'lucide-react';
 import { useTranslation } from '../lib/locales';
 
 export const Layout: React.FC<{ children: React.ReactNode; onOpenSettings?: () => void }> = ({
@@ -13,15 +13,19 @@ export const Layout: React.FC<{ children: React.ReactNode; onOpenSettings?: () =
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <header className="flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-red-500" />
-          <h1 className="text-xl font-bold tracking-widest text-slate-100">WITNESS</h1>
+        <div className="flex items-center gap-3">
+          <Shield className="w-5 h-5 text-red-500" />
+          <span className="text-base font-bold tracking-wider text-slate-100">Witness</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] text-emerald-400 font-medium">
+            <Radio className="w-3 h-3 text-emerald-400" />
+            <span>{t.statusReady}</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => changeLocale(locale === 'en' ? 'cs' : 'en')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/70 transition-colors"
             title="Switch Language / Přepnout jazyk"
           >
             <Globe className="w-3.5 h-3.5 text-slate-400" />
@@ -31,19 +35,23 @@ export const Layout: React.FC<{ children: React.ReactNode; onOpenSettings?: () =
             <button
               type="button"
               onClick={onOpenSettings}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/70 transition-colors"
               title={t.config}
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-3.5 h-3.5 text-slate-400" />
+              <span>{t.config}</span>
             </button>
           )}
         </div>
       </header>
-      <main className="flex-1 flex flex-col items-center w-full">
+      <main className="flex-1 flex flex-col items-center justify-center w-full">
         {children}
       </main>
-      <footer className="p-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 border-t border-slate-900 px-6">
-        <span>Witness Protocol v0.1.0 · Sovereign Edge Evidence</span>
+      <footer className="p-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 border-t border-slate-900/80 px-6">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>{t.footerText}</span>
+        </div>
         <button
           type="button"
           onClick={() => setIsPrivacyOpen(true)}

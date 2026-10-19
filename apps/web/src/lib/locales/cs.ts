@@ -25,7 +25,7 @@ export const cs = {
   serverConnection: "Připojení k serveru",
   alertRouting: "Odesílání upozornění",
   saveAndConnect: "Uložit nastavení",
-  footerText: "Kryptograficky řetězené ukládání na Cloudflare Edge",
+  footerText: "Šifrované ukládání na Cloudflare Edge",
   cameraPermissionDenied: "Přístup ke kameře nebo mikrofonu byl odepřen. Povolte přístup v nastavení prohlížeče.",
   cameraInitFailed: "Nepodařilo se inicializovat kameru a mikrofon.",
   alreadyRecording: "Nahrávání již probíhá.",
