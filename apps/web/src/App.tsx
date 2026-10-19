@@ -1,12 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Layout } from './components/Layout';
 import { SettingsPanel } from './components/SettingsPanel';
 import { RecordButton } from './components/RecordButton';
 import { StatusBar } from './components/StatusBar';
-import { SessionList } from './components/SessionList';
+import { SessionList, type DisplaySession } from './components/SessionList';
 import { useRecorder } from './hooks/useRecorder';
 import { useUploadStatus } from './hooks/useUpload';
+import { fetchSessions } from './lib/api';
 import type { AlertPreferences } from '@blackbox-protocol/shared';
 
 export default function App() {
@@ -16,19 +17,52 @@ export default function App() {
   const [discordAlert, setDiscordAlert] = useState(localStorage.getItem('discordAlert') !== 'false');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<DisplaySession[]>([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+
+  const loadSessions = useCallback(async () => {
+    if (!apiUrl) {
+      setSessions(JSON.parse(localStorage.getItem('sessions') || '[]'));
+      return;
+    }
+    setIsLoadingSessions(true);
+    try {
+      if (token) {
+        const remote = await fetchSessions(apiUrl, token);
+        const mapped: DisplaySession[] = remote.map((r) => ({
+          id: r.id,
+          date: r.created_at,
+          chunkCount: r.total_chunks,
+          status: r.status,
+          duration: Math.round(r.total_chunks),
+        }));
+        setSessions(mapped);
+        return;
+      }
+    } catch (e) {
+      console.warn('Failed to fetch remote sessions, using local storage:', e);
+    } finally {
+      setIsLoadingSessions(false);
+    }
+    setSessions(JSON.parse(localStorage.getItem('sessions') || '[]'));
+  }, [apiUrl, token]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    setSessions(JSON.parse(localStorage.getItem('sessions') || '[]'));
+    loadSessions();
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [loadSessions]);
+
+  const handleClearSessions = () => {
+    localStorage.removeItem('sessions');
+    setSessions([]);
+  };
 
   const alertPreferences: AlertPreferences = useMemo(
     () => ({
@@ -42,7 +76,8 @@ export default function App() {
   const { isRecording, duration, chunkCount, startRecording, stopRecording, error } = useRecorder(
     apiUrl,
     token,
-    alertPreferences
+    alertPreferences,
+    loadSessions
   );
   const { uploadStats } = useUploadStatus();
 
@@ -96,7 +131,15 @@ export default function App() {
                 onStop={stopRecording}
               />
             </div>
-            {!isRecording && <SessionList sessions={sessions} apiUrl={apiUrl} />}
+            {!isRecording && (
+              <SessionList
+                sessions={sessions}
+                apiUrl={apiUrl}
+                onRefresh={loadSessions}
+                onClear={handleClearSessions}
+                isLoading={isLoadingSessions}
+              />
+            )}
           </div>
 
           {/* Modal popup using React createPortal as required by project guidelines */}

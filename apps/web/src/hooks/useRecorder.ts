@@ -5,7 +5,12 @@ import { getCurrentPosition, GeoPosition } from '../lib/geo';
 import { finalizeSession } from '../lib/api';
 import type { AlertPreferences } from '@blackbox-protocol/shared';
 
-export function useRecorder(apiUrl: string, token: string, alerts?: AlertPreferences) {
+export function useRecorder(
+  apiUrl: string,
+  token: string,
+  alerts?: AlertPreferences,
+  onSessionFinished?: (sessionId: string) => void
+) {
   const [isRecording, setIsRecording] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [chunkCount, setChunkCount] = useState(0);
@@ -108,6 +113,8 @@ export function useRecorder(apiUrl: string, token: string, alerts?: AlertPrefere
         }
       } catch (err) {
         console.error('Finalize session failed:', err);
+      } finally {
+        onSessionFinished?.(sessionId);
       }
     }
   };

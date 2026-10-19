@@ -26,7 +26,8 @@ export default {
     }
 
     const authHeader = request.headers.get('Authorization');
-    if (!authHeader || authHeader !== `Bearer ${env.ALERT_SECRET}`) {
+    const isInternal = request.headers.get('X-Internal-Service') === 'witness-ingestion';
+    if (!isInternal && (!authHeader || authHeader !== `Bearer ${env.ALERT_SECRET}`)) {
       return new Response('Unauthorized', { status: 401 });
     }
 
@@ -56,7 +57,9 @@ export default {
 
 async function sendTelegramAlert(payload: AlertPayload, env: Env) {
   const { type, sessionId, latitude, longitude, timestamp } = payload;
-  const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev').replace(/\/+$/, '');
+  const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev')
+    .replace('witness-ingestion', 'witness-playback')
+    .replace(/\/+$/, '');
   const playbackLink = `${base}/play/${sessionId}`;
   
   if (type === 'session_started') {
@@ -100,7 +103,9 @@ async function sendTelegramAlert(payload: AlertPayload, env: Env) {
 
 async function sendDiscordAlert(payload: AlertPayload, env: Env) {
   const { type, sessionId, latitude, longitude, timestamp } = payload;
-  const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev').replace(/\/+$/, '');
+  const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev')
+    .replace('witness-ingestion', 'witness-playback')
+    .replace(/\/+$/, '');
   const playbackLink = `${base}/play/${sessionId}`;
 
   const isStart = type === 'session_started';

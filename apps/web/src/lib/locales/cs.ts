@@ -43,4 +43,10 @@ export const cs = {
   telegramChatIdLabel: "Telegram Chat ID",
   telegramChatIdPlaceholder: "Volitelné Chat ID pro upozornění",
   closeSettings: "Zavřít",
+  refreshSessions: "Aktualizovat seznam",
+  clearHistory: "Vymazat historii",
+  statusCompleted: "Dokončeno",
+  statusActive: "Probíhá",
+  statusInterrupted: "Přerušeno",
+  statusCorrupted: "Poškozeno",
 };

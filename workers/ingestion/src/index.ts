@@ -64,6 +64,15 @@ export default {
         return await handleListSessions(request, env);
       }
 
+      // 5. Playback redirect: /play/:sessionId or /playback/:sessionId or /api/playback/:sessionId
+      const playMatch = url.pathname.match(/^\/(?:api\/)?(?:play|playback)\/(.+)$/);
+      if (playMatch) {
+        const targetUrl = new URL(request.url);
+        targetUrl.hostname = targetUrl.hostname.replace('witness-ingestion', 'witness-playback');
+        targetUrl.pathname = `/play/${playMatch[1]}`;
+        return Response.redirect(targetUrl.toString(), 307);
+      }
+
       return errorResponse('Not found', 404);
     } catch (error: any) {
       console.error('Ingestion worker error:', error);
@@ -98,13 +107,15 @@ async function computeSha256Hex(buffer: ArrayBuffer): Promise<string> {
 }
 
 function dispatchAlert(env: Env, ctx: ExecutionContext, payload: any): void {
-  if (!env.ALERT_SECRET) return;
   if (!env.ALERT_SERVICE && !env.ALERT_WORKER_URL) return;
 
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${env.ALERT_SECRET}`,
+    'X-Internal-Service': 'witness-ingestion',
   };
+  if (env.ALERT_SECRET) {
+    headers['Authorization'] = `Bearer ${env.ALERT_SECRET}`;
+  }
   const body = JSON.stringify(payload);
 
   ctx.waitUntil(
@@ -267,7 +278,7 @@ async function handleUpload(
   const wasInserted = (batchResults[1]?.meta?.changes ?? 0) > 0;
 
   // STEP 3: Dispatch alert on sequence 0 if newly inserted
-  if (sequence === 0 && wasInserted && (env.ALERT_SERVICE || env.ALERT_WORKER_URL) && env.ALERT_SECRET) {
+  if (sequence === 0 && wasInserted && (env.ALERT_SERVICE || env.ALERT_WORKER_URL)) {
     let alerts = undefined;
     if (alertsStr) {
       try {
@@ -412,7 +423,7 @@ async function handleFinalize(
   await env.WITNESS_DB.batch([reconcileOffsetsStmt, updateSessionStmt]);
 
   // 3. Dispatch alert with complete integrity metadata
-  if ((env.ALERT_SERVICE || env.ALERT_WORKER_URL) && env.ALERT_SECRET) {
+  if (env.ALERT_SERVICE || env.ALERT_WORKER_URL) {
     let alerts = undefined;
     try {
       const session = await env.WITNESS_DB.prepare(
