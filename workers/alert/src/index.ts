@@ -12,6 +12,11 @@ interface AlertPayload {
   latitude?: number;
   longitude?: number;
   timestamp: string;
+  alerts?: {
+    telegram?: boolean;
+    discord?: boolean;
+    email?: boolean;
+  };
 }
 
 export default {
@@ -30,10 +35,10 @@ export default {
       
       const promises: Promise<any>[] = [];
 
-      if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+      if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID && payload.alerts?.telegram !== false) {
         promises.push(sendTelegramAlert(payload, env));
       }
-      if (env.DISCORD_WEBHOOK_URL) {
+      if (env.DISCORD_WEBHOOK_URL && payload.alerts?.discord !== false) {
         promises.push(sendDiscordAlert(payload, env));
       }
 

@@ -38,4 +38,9 @@ export const cs = {
   discordAlert: "Discord webhook",
   emailAlert: "Emailová notifikace (Resend)",
   emailPlaceholder: "nouzovy-kontakt@example.com",
+  apiUrlLabel: "API URL",
+  authTokenLabel: "Autorizační token (Bearer)",
+  telegramChatIdLabel: "Telegram Chat ID",
+  telegramChatIdPlaceholder: "Volitelné Chat ID pro upozornění",
+  closeSettings: "Zavřít",
 };
