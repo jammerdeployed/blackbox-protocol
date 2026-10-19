@@ -19,6 +19,7 @@ export default function App() {
   const [telegramAlert, setTelegramAlert] = useState(localStorage.getItem('telegramAlert') !== 'false');
   const [emailAlert, setEmailAlert] = useState(localStorage.getItem('emailAlert') === 'true');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [sessions, setSessions] = useState<DisplaySession[]>([]);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
@@ -107,7 +108,12 @@ export default function App() {
   const isConfigured = Boolean(apiUrl && token);
 
   return (
-    <Layout onOpenSettings={isConfigured ? () => setIsSettingsOpen(true) : undefined}>
+    <Layout
+      onOpenSettings={isConfigured ? () => setIsSettingsOpen(true) : undefined}
+      isPrivacyOpen={isPrivacyOpen}
+      onOpenPrivacy={() => setIsPrivacyOpen(true)}
+      onClosePrivacy={() => setIsPrivacyOpen(false)}
+    >
       {!isConfigured ? (
         <div className="p-4 w-full flex justify-center">
           <SettingsPanel
@@ -119,6 +125,7 @@ export default function App() {
             initDiscordEnabled={discordAlert}
             initTelegramEnabled={telegramAlert}
             initEmailEnabled={emailAlert}
+            onOpenPrivacy={() => setIsPrivacyOpen(true)}
           />
         </div>
       ) : (
@@ -171,6 +178,10 @@ export default function App() {
                   initTelegramEnabled={telegramAlert}
                   initEmailEnabled={emailAlert}
                   onClose={() => setIsSettingsOpen(false)}
+                  onOpenPrivacy={() => {
+                    setIsSettingsOpen(false);
+                    setIsPrivacyOpen(true);
+                  }}
                 />
               </div>,
               document.body

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Bell, X, Send, Mail, MessageSquare } from 'lucide-react';
+import { Save, Bell, X, Send, Mail, MessageSquare, Lock } from 'lucide-react';
 import { WitnessLogo } from './WitnessLogo';
 import { useTranslation } from '../lib/locales';
 
@@ -23,6 +23,7 @@ interface Props {
   initTelegramEnabled?: boolean;
   initEmailEnabled?: boolean;
   onClose?: () => void;
+  onOpenPrivacy?: () => void;
 }
 
 export const SettingsPanel: React.FC<Props> = ({
@@ -35,6 +36,7 @@ export const SettingsPanel: React.FC<Props> = ({
   initTelegramEnabled = true,
   initEmailEnabled = false,
   onClose,
+  onOpenPrivacy,
 }) => {
   const { t } = useTranslation();
   const [url, setUrl] = useState(initUrl);
@@ -197,6 +199,19 @@ export const SettingsPanel: React.FC<Props> = ({
           <Save className="w-4 h-4" />
           {t.saveAndConnect}
         </button>
+
+        {onOpenPrivacy && (
+          <div className="pt-2 border-t border-slate-800 flex justify-center">
+            <button
+              type="button"
+              onClick={onOpenPrivacy}
+              className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors py-1"
+            >
+              <Lock className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{t.viewPolicyInSettings}</span>
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );
