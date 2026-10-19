@@ -51,4 +51,10 @@ export const en: TranslationKeys = {
   statusActive: "Active",
   statusInterrupted: "Interrupted",
   statusCorrupted: "Corrupted",
+  privacyTitle: "Privacy Architecture & Security",
+  privacyText1: "Zero analytics, zero tracking SDKs, and zero telemetry brokers.",
+  privacyText2: "All incident data (video, audio, GPS) streams directly into your private, self-hosted Cloudflare Edge storage (D1 & R2).",
+  privacyText3: "Credentials and tokens never leave your local browser storage.",
+  privacyClose: "Acknowledge",
+  privacyLink: "Privacy & Security",
 };

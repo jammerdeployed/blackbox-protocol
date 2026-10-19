@@ -226,6 +226,9 @@ pnpm test
 
 ---
 
-## 📄 License
+## 🛡️ Privacy, Security & Community
 
-This project is open-source under the [MIT License](LICENSE).
+- 🔐 **Privacy Architecture:** [PRIVACY.md](PRIVACY.md) — Zero-knowledge, single-tenant data sovereignty model.
+- 🚨 **Security & Vulnerabilities:** [SECURITY.md](SECURITY.md) — Tamper-evident verification and coordinated disclosure.
+- 🤝 **Code of Conduct:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant v2.1.
+- 📄 **License:** [MIT License](LICENSE) — Copyright (c) 2026 Tomáš Chytil.

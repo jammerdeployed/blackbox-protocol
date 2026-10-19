@@ -49,4 +49,10 @@ export const cs = {
   statusActive: "Probíhá",
   statusInterrupted: "Přerušeno",
   statusCorrupted: "Poškozeno",
+  privacyTitle: "Zásady ochrany soukromí a bezpečnost",
+  privacyText1: "Tento projekt neobsahuje žádné analytické nástroje ani sledovací skripty třetích stran.",
+  privacyText2: "Všechna data (video, zvuk, GPS) se ukládají výhradně do vaší vlastní infrastruktury na Cloudflare (D1 a R2).",
+  privacyText3: "Pověření (URL a tokeny) jsou uloženy pouze lokálně ve vašem prohlížeči.",
+  privacyClose: "Rozumím",
+  privacyLink: "Ochrana soukromí & Bezpečnost",
 };
