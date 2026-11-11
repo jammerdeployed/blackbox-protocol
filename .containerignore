@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build artifacts & cache
+dist/
+**/dist/
+.turbo/
+**/.turbo/
+
+# Version control
+.git/
+.github/
+
+# Environment files and secrets
+.env
+.env.*
+.dev.vars
+
+# Cloudflare local state
+.wrangler/
+**/.wrangler/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Documentation
+docs/

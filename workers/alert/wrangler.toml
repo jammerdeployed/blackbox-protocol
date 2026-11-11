@@ -8,3 +8,5 @@ compatibility_date = "2024-12-01"
 # - PLAYBACK_BASE_URL   (URL of playback worker, e.g. https://witness-playback.<subdomain>.workers.dev)
 # - TELEGRAM_BOT_TOKEN  (Optional: Telegram bot token)
 # - TELEGRAM_CHAT_ID    (Optional: Telegram chat ID)
+# - RESEND_API_KEY      (Optional: Resend API key for email alerts)
+# - ALERT_EMAIL_FROM    (Optional: Sender email in Resend, e.g. alerts@yourdomain.com)

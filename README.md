@@ -141,6 +141,28 @@ pnpm test
 pnpm --filter @blackbox-protocol/web build
 ```
 
+### Optional: Self-Hosting Web Client with Podman
+
+By default, the web frontend is deployed to **Cloudflare Pages** (`pnpm run deploy`). If you prefer to self-host the PWA on your own infrastructure (VPS, home server, Raspberry Pi, Kubernetes/OpenShift) using a lightweight Nginx web server without Cloudflare Pages:
+
+```bash
+# Build container image (Podman automatically detects Containerfile)
+podman build -t blackbox-pwa .
+
+# Run container in background on port 8080
+podman run -d --name blackbox-pwa -p 8080:80 blackbox-pwa
+
+# Check container status and view logs
+podman ps
+podman logs -f blackbox-pwa
+
+# Stop and remove container
+podman stop blackbox-pwa
+podman rm blackbox-pwa
+```
+
+Once running, access the PWA in your browser at `http://localhost:8080`.
+
 ### Cloudflare Infrastructure Setup
 
 1. **Create R2 Storage & D1 Database:**
@@ -206,6 +228,18 @@ npx wrangler deploy --cwd workers/alert
    ```bash
    npx wrangler secret put TELEGRAM_CHAT_ID --cwd workers/alert
    ```
+
+#### Option C: Email via Resend
+1. Sign up for a free account at [Resend](https://resend.com) and create an API key.
+2. Save the key into the Alert Worker:
+   ```bash
+   npx wrangler secret put RESEND_API_KEY --cwd workers/alert
+   ```
+3. *(Optional)* If you have verified a custom domain in Resend, configure your custom sender address (defaults to `onboarding@resend.dev`):
+   ```bash
+   npx wrangler secret put ALERT_EMAIL_FROM --cwd workers/alert
+   ```
+   > **Important:** With the default `onboarding@resend.dev` address, Resend only allows sending emails to the specific address registered to your Resend account. To dispatch alerts to external emergency contacts, you must verify your own custom domain in Resend.
 
 #### Connecting Ingestion ➔ Alert Worker (Service Binding)
 In Cloudflare Dashboard, open `witness-ingestion` ➔ **Settings** ➔ **Variables and Secrets** ➔ **Service Bindings**:

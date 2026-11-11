@@ -149,9 +149,15 @@ async function sendDiscordAlert(payload: AlertPayload, env: Env) {
 }
 
 async function sendEmailAlert(payload: AlertPayload, env: Env) {
-  if (!env.RESEND_API_KEY) return;
+  if (!env.RESEND_API_KEY) {
+    console.warn('[Alert Worker] Email alert skipped: RESEND_API_KEY is not configured');
+    return;
+  }
   const toEmail = payload.alerts?.emailAddress || env.ALERT_EMAIL_TO;
-  if (!toEmail) return;
+  if (!toEmail) {
+    console.warn('[Alert Worker] Email alert skipped: No recipient email address provided');
+    return;
+  }
 
   const { type, sessionId, latitude, longitude, timestamp } = payload;
   const base = (env.PLAYBACK_BASE_URL || 'https://witness-playback.jammer.workers.dev')
@@ -185,7 +191,7 @@ async function sendEmailAlert(payload: AlertPayload, env: Env) {
   `;
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
@@ -198,7 +204,12 @@ async function sendEmailAlert(payload: AlertPayload, env: Env) {
         html,
       }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Alert Worker] Resend API error (${response.status}):`, errorText);
+    }
   } catch (err) {
-    console.error('Failed to send Resend email:', err);
+    console.error('[Alert Worker] Failed to send Resend email:', err);
   }
 }
